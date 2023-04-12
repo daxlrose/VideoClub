@@ -1,18 +1,14 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using VideoClub.Data;
+using Microsoft.AspNetCore.Identity;
+using VideoClub.Api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddDbContext<VideoClubDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services
+    .AddPresentation()
+    .AddInfrastructure(builder.Configuration)
+    .AddAuthenticationAndAuthorization(builder.Configuration);
 
 var app = builder.Build();
 
@@ -25,8 +21,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
+app.Services.SeedRoles().Wait();
 
 app.MapControllers();
 
 app.Run();
+

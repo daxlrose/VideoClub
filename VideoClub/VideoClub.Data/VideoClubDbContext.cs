@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using VideoClub.Data.Models;
 
 namespace VideoClub.Data
 {
-    public class VideoClubDbContext : DbContext
+    public class VideoClubDbContext : IdentityDbContext<ApplicationUser>
     {
         public VideoClubDbContext(DbContextOptions<VideoClubDbContext> options)
        : base(options)
@@ -12,6 +13,5 @@ namespace VideoClub.Data
 
         public DbSet<Movie> Movies { get; set; }
         public DbSet<Rental> Rentals { get; set; }
-        public DbSet<Customer> Customers { get; set; }
     }
 }

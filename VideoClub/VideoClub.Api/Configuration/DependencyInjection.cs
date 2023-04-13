@@ -10,6 +10,7 @@ using VideoClub.Services.Implementations;
 using VideoClub.Services.Models.Configuration;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using VideoClub.Common.Mapping;
 
 namespace VideoClub.Api.Configuration
 {
@@ -115,7 +116,9 @@ namespace VideoClub.Api.Configuration
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
+            services.AddAutoMapper(typeof(MappingProfile));
             services.AddScoped<IUserManagementService, UserManagementService>();
+            services.AddScoped<IMovieManagementService, MovieManagementService>();
 
             return services;
         }

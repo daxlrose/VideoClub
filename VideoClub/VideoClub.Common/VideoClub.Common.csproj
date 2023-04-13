@@ -7,11 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VideoClub.Common\VideoClub.Common.csproj" />
     <ProjectReference Include="..\VideoClub.Data\VideoClub.Data.csproj" />
   </ItemGroup>
 

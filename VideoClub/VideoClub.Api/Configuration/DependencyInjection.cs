@@ -1,11 +1,15 @@
-﻿using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using VideoClub.Data;
 using VideoClub.Data.Models;
+using VideoClub.Services.Contracts;
+using VideoClub.Services.Implementations;
+using VideoClub.Services.Models.Configuration;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 namespace VideoClub.Api.Configuration
 {
@@ -25,7 +29,38 @@ namespace VideoClub.Api.Configuration
         {
             services.AddControllers();
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "VideoClub.Api", Version = "v1" });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme.",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
+            });
 
             return services;
         }
@@ -51,11 +86,13 @@ namespace VideoClub.Api.Configuration
                             ValidateAudience = true,
                             ValidateLifetime = true,
                             ValidateIssuerSigningKey = true,
-                            ValidIssuer = configuration["Jwt:Issuer"],
-                            ValidAudience = configuration["Jwt:Audience"],
-                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"]))
+                            ValidIssuer = configuration["JwtSettings:Issuer"],
+                            ValidAudience = configuration["JwtSettings:Audience"],
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:SecretKey"]))
                         };
                     });
+
+            services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 
             return services;
         }
@@ -74,6 +111,13 @@ namespace VideoClub.Api.Configuration
                     await roleManager.CreateAsync(new IdentityRole(role));
                 }
             }
+        }
+
+        public static IServiceCollection AddServices(this IServiceCollection services)
+        {
+            services.AddScoped<IUserManagementService, UserManagementService>();
+
+            return services;
         }
     }
 }

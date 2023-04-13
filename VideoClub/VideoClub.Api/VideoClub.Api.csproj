@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\VideoClub.Data\VideoClub.Data.csproj" />
+    <ProjectReference Include="..\VideoClub.Services\VideoClub.Services.csproj" />
   </ItemGroup>
 
 </Project>

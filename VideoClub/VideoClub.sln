@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoClub.Api", "VideoClub.Api\VideoClub.Api.csproj", "{A40A63DB-F116-4373-9CFB-470DF4E1A4A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoClub.Api", "VideoClub.Api\VideoClub.Api.csproj", "{A40A63DB-F116-4373-9CFB-470DF4E1A4A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoClub.Data", "VideoClub.Data\VideoClub.Data.csproj", "{B8BF9E92-0ACB-4F1E-B0C3-494FB51A396A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoClub.Data", "VideoClub.Data\VideoClub.Data.csproj", "{B8BF9E92-0ACB-4F1E-B0C3-494FB51A396A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoClub.Services", "VideoClub.Services\VideoClub.Services.csproj", "{1E87B3E9-EAAB-48EC-8DF2-408643C1939E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{B8BF9E92-0ACB-4F1E-B0C3-494FB51A396A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8BF9E92-0ACB-4F1E-B0C3-494FB51A396A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8BF9E92-0ACB-4F1E-B0C3-494FB51A396A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E87B3E9-EAAB-48EC-8DF2-408643C1939E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E87B3E9-EAAB-48EC-8DF2-408643C1939E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E87B3E9-EAAB-48EC-8DF2-408643C1939E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E87B3E9-EAAB-48EC-8DF2-408643C1939E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

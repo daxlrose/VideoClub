@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoClub.Data", "VideoClub
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoClub.Services", "VideoClub.Services\VideoClub.Services.csproj", "{1E87B3E9-EAAB-48EC-8DF2-408643C1939E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoClub.Tests", "VideoClub.Tests\VideoClub.Tests.csproj", "{678B9E49-1153-4EA8-975A-D958144836EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{1E87B3E9-EAAB-48EC-8DF2-408643C1939E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E87B3E9-EAAB-48EC-8DF2-408643C1939E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E87B3E9-EAAB-48EC-8DF2-408643C1939E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{678B9E49-1153-4EA8-975A-D958144836EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{678B9E49-1153-4EA8-975A-D958144836EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{678B9E49-1153-4EA8-975A-D958144836EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{678B9E49-1153-4EA8-975A-D958144836EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

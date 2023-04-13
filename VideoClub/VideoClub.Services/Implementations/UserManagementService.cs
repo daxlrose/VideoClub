@@ -32,7 +32,7 @@ namespace VideoClub.Services.Implementations
 
             var result = await _userManager.CreateAsync(user, model.Password);
 
-            if (result.Succeeded)
+            if (result is not null && result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "Customer");
             }
@@ -44,7 +44,7 @@ namespace VideoClub.Services.Implementations
         {
             var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
 
-            if (result.Succeeded)
+            if (result is not null && result.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 return await GenerateJwtAsync(user);

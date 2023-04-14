@@ -119,6 +119,7 @@ namespace VideoClub.Api.Configuration
             services.AddAutoMapper(typeof(MappingProfile));
             services.AddScoped<IUserManagementService, UserManagementService>();
             services.AddScoped<IMovieManagementService, MovieManagementService>();
+            services.AddScoped<IGenreManagementService, GenreManagementService>();
 
             return services;
         }

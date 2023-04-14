@@ -15,19 +15,22 @@ namespace VideoClub.Api.Controllers
     public class MoviesController : ControllerBase
     {
         private readonly IMovieManagementService _movieManagementService;
+        private readonly IGenreManagementService _genreManagementService;
         private readonly IMapper _mapper;
 
         public MoviesController(IMovieManagementService movieManagementService,
+            IGenreManagementService genreManagementService,
             IMapper mapper)
         {
             _movieManagementService = movieManagementService;
+            _genreManagementService = genreManagementService;
             _mapper = mapper;
         }
 
         /// <summary>
         /// Adds a new movie.
         /// </summary>
-        /// <param name="movie">The movie to add.</param>
+        /// <param name="movieDto">The movie to add.</param>
         /// <returns>A newly created movie.</returns>
         /// <response code="201">A new movie was created.</response>
         /// <response code="400">Invalid input.</response>
@@ -35,9 +38,23 @@ namespace VideoClub.Api.Controllers
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Movie>> AddMovie([FromBody] CreateMovieDto movieDto)
+        public async Task<ActionResult<MovieDto>> AddMovie([FromBody] CreateMovieDto movieDto)
         {
             var movie = _mapper.Map<Movie>(movieDto);
+
+            var genreIds = movieDto.GenreIds;
+            var movieGenres = new List<MovieGenre>();
+            foreach (var genreId in genreIds)
+            {
+                var genre = await _genreManagementService.GetGenreByIdAsync(genreId);
+                if (genre == null)
+                {
+                    return BadRequest($"Invalid genre ID: {genreId}");
+                }
+                movieGenres.Add(new MovieGenre { Movie = movie, GenreId = genreId });
+            }
+            movie.MovieGenres = movieGenres;
+
             var addedMovie = await _movieManagementService.AddMovieAsync(movie);
             return CreatedAtAction(nameof(GetMovieById), new { id = addedMovie.Id }, addedMovie);
         }
@@ -52,7 +69,7 @@ namespace VideoClub.Api.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Movie>> GetMovieById(int id)
+        public async Task<ActionResult<MovieDto>> GetMovieById(int id)
         {
             var movie = await _movieManagementService.GetMovieByIdAsync(id);
 
@@ -61,7 +78,8 @@ namespace VideoClub.Api.Controllers
                 return NotFound();
             }
 
-            return movie;
+            var movieDto = _mapper.Map<MovieDto>(movie);
+            return movieDto;
         }
     }
 }

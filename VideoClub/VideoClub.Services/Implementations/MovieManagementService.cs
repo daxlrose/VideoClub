@@ -1,4 +1,5 @@
-﻿using VideoClub.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using VideoClub.Data;
 using VideoClub.Data.Models;
 using VideoClub.Services.Contracts;
 
@@ -22,7 +23,10 @@ namespace VideoClub.Services.Implementations
 
         public async Task<Movie> GetMovieByIdAsync(int id)
         {
-            return await _dbContext.Movies.FindAsync(id);
+            return await _dbContext.Movies
+                .Include(m => m.MovieGenres)
+                .ThenInclude(mg => mg.Genre)
+                .FirstOrDefaultAsync(m => m.Id == id);
         }
     }
 }

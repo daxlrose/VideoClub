@@ -21,6 +21,11 @@ namespace VideoClub.Services.Implementations
             return movie;
         }
 
+        public async Task<IEnumerable<Movie>> GetAllMoviesAsync()
+        {
+            return await _dbContext.Movies.Include(m => m.MovieGenres).ThenInclude(mg => mg.Genre).ToListAsync();
+        }
+
         public async Task<Movie> GetMovieByIdAsync(int id)
         {
             return await _dbContext.Movies

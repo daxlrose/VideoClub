@@ -81,5 +81,20 @@ namespace VideoClub.Api.Controllers
             var movieDto = _mapper.Map<MovieDto>(movie);
             return movieDto;
         }
+
+        /// <summary>
+        /// Retrieves all movies in the system.
+        /// </summary>
+        /// <returns>A list of movies.</returns>
+        /// <response code="200">A list of movies was successfully retrieved.</response>
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<MovieDto>>> GetAllMovies()
+        {
+            var movies = await _movieManagementService.GetAllMoviesAsync();
+
+            var movieDtos = _mapper.Map<IEnumerable<MovieDto>>(movies);
+            return Ok(movieDtos);
+        }
     }
 }

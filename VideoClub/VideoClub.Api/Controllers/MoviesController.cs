@@ -40,6 +40,8 @@ namespace VideoClub.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<MovieDto>> AddMovie([FromBody] CreateMovieDto movieDto)
         {
+            movieDto.ReleaseDate = movieDto.ReleaseDate.ToUniversalTime();
+
             var movie = _mapper.Map<Movie>(movieDto);
 
             var genreIds = movieDto.GenreIds;

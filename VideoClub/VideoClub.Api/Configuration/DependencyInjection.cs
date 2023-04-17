@@ -20,8 +20,8 @@ namespace VideoClub.Api.Configuration
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            services.AddDbContext<VideoClubDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<VideoClubDbContext>(options => options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
 
             return services;
         }

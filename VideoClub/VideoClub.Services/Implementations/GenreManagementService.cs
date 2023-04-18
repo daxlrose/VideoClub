@@ -24,5 +24,17 @@ namespace VideoClub.Services.Implementations
         {
             return await _dbContext.Genres.FindAsync(id);
         }
+
+        public async Task UpdateGenreAsync(Genre genre)
+        {
+            _dbContext.Genres.Update(genre);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteGenreAsync(Genre genre)
+        {
+            _dbContext.Genres.Remove(genre);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

@@ -6,5 +6,7 @@ namespace VideoClub.Services.Contracts
     {
         Task<Genre> AddGenreAsync(Genre genre);
         Task<Genre> GetGenreByIdAsync(int id);
+        Task UpdateGenreAsync(Genre genre);
+        Task DeleteGenreAsync(Genre genre);
     }
 }

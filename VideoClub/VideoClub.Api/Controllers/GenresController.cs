@@ -64,5 +64,59 @@ namespace VideoClub.Api.Controllers
             var genreDto = _mapper.Map<GenreDto>(genre);
             return genreDto;
         }
+
+        /// <summary>
+        /// Updates an existing genre.
+        /// </summary>
+        /// <param name="id">The ID of the genre to update.</param>
+        /// <param name="genreDto">The updated genre information.</param>
+        /// <returns>An IActionResult indicating the result of the operation.</returns>
+        /// <response code="200">The genre was successfully updated.</response>
+        /// <response code="400">Invalid input.</response>
+        /// <response code="404">The genre with the specified ID was not found.</response>
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateGenre(int id, [FromBody] UpdateGenreDto genreDto)
+        {
+            var genre = await _genreManagementService.GetGenreByIdAsync(id);
+
+            if (genre == null)
+            {
+                return NotFound();
+            }
+
+            _mapper.Map(genreDto, genre);
+            await _genreManagementService.UpdateGenreAsync(genre);
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// Deletes a genre by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the genre to delete.</param>
+        /// <returns>An IActionResult indicating the result of the operation.</returns>
+        /// <response code="200">The genre was successfully deleted.</response>
+        /// <response code="404">The genre with the specified ID was not found.</response>
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteGenre(int id)
+        {
+            var genre = await _genreManagementService.GetGenreByIdAsync(id);
+
+            if (genre == null)
+            {
+                return NotFound();
+            }
+
+            await _genreManagementService.DeleteGenreAsync(genre);
+
+            return Ok();
+        }
     }
 }

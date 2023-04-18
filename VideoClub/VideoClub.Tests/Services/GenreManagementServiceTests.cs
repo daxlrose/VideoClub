@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.InMemory;
 using VideoClub.Data;
 using VideoClub.Data.Models;
 using VideoClub.Services.Contracts;
@@ -63,6 +62,43 @@ namespace VideoClub.Tests.Services
             var foundGenre = await _service.GetGenreByIdAsync(nonExistentGenreId);
 
             // Assert
+            Assert.Null(foundGenre);
+        }
+
+        [Fact]
+        public async Task UpdateGenreAsync_UpdatesExistingGenre()
+        {
+            // Arrange
+            var newGenre = new Genre { Name = "Action" };
+            _dbContext.Genres.Add(newGenre);
+            await _dbContext.SaveChangesAsync();
+
+            var updatedGenreName = "Updated Action";
+
+            // Act
+            var existingGenre = await _dbContext.Genres.FindAsync(newGenre.Id);
+            existingGenre.Name = updatedGenreName;
+            await _service.UpdateGenreAsync(existingGenre);
+
+            // Assert
+            var foundGenre = await _dbContext.Genres.FindAsync(newGenre.Id);
+            Assert.NotNull(foundGenre);
+            Assert.Equal(updatedGenreName, foundGenre.Name);
+        }
+
+        [Fact]
+        public async Task DeleteGenreAsync_RemovesExistingGenre()
+        {
+            // Arrange
+            var newGenre = new Genre { Name = "Action" };
+            _dbContext.Genres.Add(newGenre);
+            await _dbContext.SaveChangesAsync();
+
+            // Act
+            await _service.DeleteGenreAsync(newGenre);
+
+            // Assert
+            var foundGenre = await _dbContext.Genres.FindAsync(newGenre.Id);
             Assert.Null(foundGenre);
         }
 

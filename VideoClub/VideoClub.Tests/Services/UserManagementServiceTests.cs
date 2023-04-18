@@ -3,65 +3,39 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Moq;
 using VideoClub.Data.Models;
+using VideoClub.Services.Contracts;
 using VideoClub.Services.Implementations;
 using VideoClub.Services.Models.Configuration;
 using VideoClub.Services.Models.UserModels;
 
 namespace VideoClub.Tests.Services
 {
-    public class UserManagementServiceTests
+    public class UserManagementServiceTests : IDisposable
     {
-        // Helper method to create a mock UserManager
-        private Mock<UserManager<ApplicationUser>> CreateMockUserManager()
-        {
-            return new Mock<UserManager<ApplicationUser>>(
-                Mock.Of<IUserStore<ApplicationUser>>(),
-                null, null, null, null, null, null, null, null);
-        }
+        private readonly Mock<UserManager<ApplicationUser>> _mockUserManager;
+        private readonly Mock<SignInManager<ApplicationUser>> _mockSignInManager;
+        private readonly IOptions<JwtSettings> _mockJwtSettings;
+        private readonly IUserManagementService _service;
 
-        // Helper method to create a mock SignInManager
-        private Mock<SignInManager<ApplicationUser>> CreateMockSignInManager(Mock<UserManager<ApplicationUser>> mockUserManager)
+        public UserManagementServiceTests()
         {
-            var mockContextAccessor = new Mock<IHttpContextAccessor>();
-            var mockClaimsFactory = new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>();
-            return new Mock<SignInManager<ApplicationUser>>(
-                mockUserManager.Object,
-                mockContextAccessor.Object,
-                mockClaimsFactory.Object,
-                null, null, null, null);
-        }
-
-        // Helper method to create a mock IOptions<JwtSettings>
-        private IOptions<JwtSettings> CreateMockJwtSettings()
-        {
-            var jwtSettings = new JwtSettings
-            {
-                Issuer = "TestIssuer",
-                Audience = "TestAudience",
-                SecretKey = "ThisIsASecretKeyForTesting"
-            };
-
-            return Options.Create(jwtSettings);
+            _mockUserManager = CreateMockUserManager();
+            _mockSignInManager = CreateMockSignInManager(_mockUserManager);
+            _mockJwtSettings = CreateMockJwtSettings();
+            _service = new UserManagementService(_mockUserManager.Object, _mockSignInManager.Object, _mockJwtSettings);
         }
 
         [Fact]
         public async Task RegisterUserAsync_ReturnsSuccessfulResult_WhenRegistrationIsSuccessful()
         {
             // Arrange
-            var mockUserManager = CreateMockUserManager();
-            mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+            _mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
                 .ReturnsAsync(IdentityResult.Success);
-            mockUserManager.Setup(x => x.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+            _mockUserManager.Setup(x => x.AddToRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
                 .ReturnsAsync(IdentityResult.Success);
-
-            var mockSignInManager = CreateMockSignInManager(mockUserManager);
-
-            var mockJwtSettings = CreateMockJwtSettings();
-
-            var service = new UserManagementService(mockUserManager.Object, mockSignInManager.Object, mockJwtSettings);
 
             // Act
-            var result = await service.RegisterUserAsync(new RegisterModel { Email = "test@example.com", Password = "P@ssw0rd" });
+            var result = await _service.RegisterUserAsync(new RegisterModel { Email = "test@example.com", Password = "P@ssw0rd" });
 
             // Assert
             Assert.True(result.Succeeded);
@@ -71,18 +45,11 @@ namespace VideoClub.Tests.Services
         public async Task RegisterUserAsync_ReturnsFailedResult_WhenUserAlreadyExists()
         {
             // Arrange
-            var mockUserManager = CreateMockUserManager();
-            mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
+            _mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
                 .ReturnsAsync(new ApplicationUser());
 
-            var mockSignInManager = CreateMockSignInManager(mockUserManager);
-
-            var mockJwtSettings = CreateMockJwtSettings();
-
-            var service = new UserManagementService(mockUserManager.Object, mockSignInManager.Object, mockJwtSettings);
-
             // Act
-            var result = await service.RegisterUserAsync(new RegisterModel { Email = "test@example.com", Password = "P@ssw0rd" });
+            var result = await _service.RegisterUserAsync(new RegisterModel { Email = "test@example.com", Password = "P@ssw0rd" });
 
             // Assert
             Assert.Null(result);
@@ -92,18 +59,11 @@ namespace VideoClub.Tests.Services
         public async Task RegisterUserAsync_ReturnsFailedResult_WhenErrorCreatingUser()
         {
             // Arrange
-            var mockUserManager = CreateMockUserManager();
-            mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
+            _mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
                 .ReturnsAsync(IdentityResult.Failed());
 
-            var mockSignInManager = CreateMockSignInManager(mockUserManager);
-
-            var mockJwtSettings = CreateMockJwtSettings();
-
-            var service = new UserManagementService(mockUserManager.Object, mockSignInManager.Object, mockJwtSettings);
-
             // Act
-            var result = await service.RegisterUserAsync(new RegisterModel { Email = "test@example.com", Password = "P@ssw0rd" });
+            var result = await _service.RegisterUserAsync(new RegisterModel { Email = "test@example.com", Password = "P@ssw0rd" });
 
             // Assert
             Assert.False(result.Succeeded);
@@ -114,21 +74,13 @@ namespace VideoClub.Tests.Services
         {
             // Arrange
             var user = new ApplicationUser { Email = "test@example.com" , UserName = "test@example.com" };
-
-            var mockUserManager = CreateMockUserManager();
-            mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(user);
-
-            var mockSignInManager = CreateMockSignInManager(mockUserManager);
-            mockSignInManager.Setup(x => x.PasswordSignInAsync(user.Email, It.IsAny<string>(), false, false))
+            _mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _mockSignInManager.Setup(x => x.PasswordSignInAsync(user.Email, It.IsAny<string>(), false, false))
                 .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Success);
-            mockUserManager.Setup(x => x.GetRolesAsync(It.IsAny<ApplicationUser>())).ReturnsAsync(new List<string>());
-
-            var mockJwtSettings = CreateMockJwtSettings();
-
-            var service = new UserManagementService(mockUserManager.Object, mockSignInManager.Object, mockJwtSettings);
+            _mockUserManager.Setup(x => x.GetRolesAsync(It.IsAny<ApplicationUser>())).ReturnsAsync(new List<string>());
 
             // Act
-            var result = await service.LoginUserAsync(new LoginModel { Email = "test@example.com", Password = "P@ssw0rd" });
+            var result = await _service.LoginUserAsync(new LoginModel { Email = "test@example.com", Password = "P@ssw0rd" });
 
             // Assert
             Assert.NotNull(result);
@@ -139,19 +91,14 @@ namespace VideoClub.Tests.Services
         {
             // Arrange
             var loginModel = new LoginModel { Email = "test@example.com", Password = "password" };
+            _mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((ApplicationUser)null);
 
-            var mockUserManager = CreateMockUserManager();
-            mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((ApplicationUser)null);
-
-            var mockSignInManager = CreateMockSignInManager(mockUserManager);
-            mockSignInManager.Setup(x => x.PasswordSignInAsync(loginModel.Email, loginModel.Password, false, false)).ReturnsAsync(SignInResult.Failed);
+            _mockSignInManager.Setup(x => x.PasswordSignInAsync(loginModel.Email, loginModel.Password, false, false)).ReturnsAsync(SignInResult.Failed);
 
             var mockJwtSettings = CreateMockJwtSettings();
 
-            var service = new UserManagementService(mockUserManager.Object, mockSignInManager.Object, mockJwtSettings);
-
             // Act
-            var result = await service.LoginUserAsync(new LoginModel { Email = "test@example.com", Password = "P@ssw0rd" });
+            var result = await _service.LoginUserAsync(new LoginModel { Email = "test@example.com", Password = "P@ssw0rd" });
 
             // Assert
             Assert.Null(result);
@@ -163,19 +110,13 @@ namespace VideoClub.Tests.Services
             // Arrange
             var user = new ApplicationUser { Email = "test@example.com" };
 
-            var mockUserManager = CreateMockUserManager();
-            mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync(user);
 
-            var mockSignInManager = CreateMockSignInManager(mockUserManager);
-            mockSignInManager.Setup(x => x.PasswordSignInAsync(user.Email, It.IsAny<string>(), false, false))
-                .ReturnsAsync(Microsoft.AspNetCore.Identity.SignInResult.Failed);
-
-            var mockJwtSettings = CreateMockJwtSettings();
-
-            var service = new UserManagementService(mockUserManager.Object, mockSignInManager.Object, mockJwtSettings);
+            _mockSignInManager.Setup(x => x.PasswordSignInAsync(user.Email, It.IsAny<string>(), false, false))
+                .ReturnsAsync(SignInResult.Failed);
 
             // Act
-            var result = await service.LoginUserAsync(new LoginModel { Email = "test@example.com", Password = "P@ssw0rd" });
+            var result = await _service.LoginUserAsync(new LoginModel { Email = "test@example.com", Password = "P@ssw0rd" });
 
             // Assert
             Assert.Null(result);
@@ -189,18 +130,11 @@ namespace VideoClub.Tests.Services
 
             var user = new ApplicationUser { Id = userId };
 
-            var mockUserManager = CreateMockUserManager();
-            mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
-            mockUserManager.Setup(x => x.AddToRoleAsync(user, "Admin")).ReturnsAsync(IdentityResult.Success);
-
-            var mockSignInManager = CreateMockSignInManager(mockUserManager);
-
-            var mockJwtSettings = CreateMockJwtSettings();
-
-            var service = new UserManagementService(mockUserManager.Object, mockSignInManager.Object, mockJwtSettings);
+            _mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _mockUserManager.Setup(x => x.AddToRoleAsync(user, "Admin")).ReturnsAsync(IdentityResult.Success);
 
             // Act
-            var result = await service.GrantAdminRoleAsync(userId);
+            var result = await _service.GrantAdminRoleAsync(userId);
 
             // Assert
             Assert.True(result.Succeeded);
@@ -212,17 +146,10 @@ namespace VideoClub.Tests.Services
             // Arrange
             var userId = "1";
 
-            var mockUserManager = CreateMockUserManager();
-            mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync((ApplicationUser)null);
-
-            var mockSignInManager = CreateMockSignInManager(mockUserManager);
-
-            var mockJwtSettings = CreateMockJwtSettings();
-
-            var service = new UserManagementService(mockUserManager.Object, mockSignInManager.Object, mockJwtSettings);
+            _mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync((ApplicationUser)null);
 
             // Act
-            var result = await service.GrantAdminRoleAsync(userId);
+            var result = await _service.GrantAdminRoleAsync(userId);
 
             // Assert
             Assert.False(result.Succeeded);
@@ -237,18 +164,11 @@ namespace VideoClub.Tests.Services
 
             var user = new ApplicationUser { Id = userId };
 
-            var mockUserManager = CreateMockUserManager();
-            mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
-            mockUserManager.Setup(x => x.AddToRoleAsync(user, "Admin")).ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "User is already in this role." }));
-
-            var mockSignInManager = CreateMockSignInManager(mockUserManager);
-
-            var mockJwtSettings = CreateMockJwtSettings();
-
-            var service = new UserManagementService(mockUserManager.Object, mockSignInManager.Object, mockJwtSettings);
+            _mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _mockUserManager.Setup(x => x.AddToRoleAsync(user, "Admin")).ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "User is already in this role." }));
 
             // Act
-            var result = await service.GrantAdminRoleAsync(userId);
+            var result = await _service.GrantAdminRoleAsync(userId);
 
             // Assert
             Assert.False(result.Succeeded);
@@ -263,18 +183,11 @@ namespace VideoClub.Tests.Services
 
             var user = new ApplicationUser { Id = userId };
 
-            var mockUserManager = CreateMockUserManager();
-            mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
-            mockUserManager.Setup(x => x.RemoveFromRoleAsync(user, "Admin")).ReturnsAsync(IdentityResult.Success);
-
-            var mockSignInManager = CreateMockSignInManager(mockUserManager);
-
-            var mockJwtSettings = CreateMockJwtSettings();
-
-            var service = new UserManagementService(mockUserManager.Object, mockSignInManager.Object, mockJwtSettings);
+            _mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _mockUserManager.Setup(x => x.RemoveFromRoleAsync(user, "Admin")).ReturnsAsync(IdentityResult.Success);
 
             // Act
-            var result = await service.RemoveAdminRoleAsync(userId);
+            var result = await _service.RemoveAdminRoleAsync(userId);
 
             // Assert
             Assert.True(result.Succeeded);
@@ -286,17 +199,10 @@ namespace VideoClub.Tests.Services
             // Arrange
             var userId = "1";
 
-            var mockUserManager = CreateMockUserManager();
-            mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync((ApplicationUser)null);
-
-            var mockSignInManager = CreateMockSignInManager(mockUserManager);
-
-            var mockJwtSettings = CreateMockJwtSettings();
-
-            var service = new UserManagementService(mockUserManager.Object, mockSignInManager.Object, mockJwtSettings);
+            _mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync((ApplicationUser)null);
 
             // Act
-            var result = await service.RemoveAdminRoleAsync(userId);
+            var result = await _service.RemoveAdminRoleAsync(userId);
 
             // Assert
             Assert.False(result.Succeeded);
@@ -311,22 +217,51 @@ namespace VideoClub.Tests.Services
 
             var user = new ApplicationUser { Id = userId };
 
-            var mockUserManager = CreateMockUserManager();
-            mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
-            mockUserManager.Setup(x => x.RemoveFromRoleAsync(user, "Admin")).ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "User is not in this role." }));
-
-            var mockSignInManager = CreateMockSignInManager(mockUserManager);
-
-            var mockJwtSettings = CreateMockJwtSettings();
-
-            var service = new UserManagementService(mockUserManager.Object, mockSignInManager.Object, mockJwtSettings);
+            _mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _mockUserManager.Setup(x => x.RemoveFromRoleAsync(user, "Admin")).ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "User is not in this role." }));
 
             // Act
-            var result = await service.RemoveAdminRoleAsync(userId);
+            var result = await _service.RemoveAdminRoleAsync(userId);
 
             // Assert
             Assert.False(result.Succeeded);
             Assert.Contains(result.Errors, e => e.Description == "User is not in this role.");
+        }
+
+        public void Dispose()
+        {
+            _mockUserManager.Reset();
+            _mockSignInManager.Reset();
+        }
+
+        private Mock<UserManager<ApplicationUser>> CreateMockUserManager()
+        {
+            return new Mock<UserManager<ApplicationUser>>(
+                Mock.Of<IUserStore<ApplicationUser>>(),
+                null, null, null, null, null, null, null, null);
+        }
+
+        private Mock<SignInManager<ApplicationUser>> CreateMockSignInManager(Mock<UserManager<ApplicationUser>> mockUserManager)
+        {
+            var mockContextAccessor = new Mock<IHttpContextAccessor>();
+            var mockClaimsFactory = new Mock<IUserClaimsPrincipalFactory<ApplicationUser>>();
+            return new Mock<SignInManager<ApplicationUser>>(
+                mockUserManager.Object,
+                mockContextAccessor.Object,
+                mockClaimsFactory.Object,
+                null, null, null, null);
+        }
+        
+        private IOptions<JwtSettings> CreateMockJwtSettings()
+        {
+            var jwtSettings = new JwtSettings
+            {
+                Issuer = "TestIssuer",
+                Audience = "TestAudience",
+                SecretKey = "ThisIsASecretKeyForTesting"
+            };
+
+            return Options.Create(jwtSettings);
         }
     }
 }

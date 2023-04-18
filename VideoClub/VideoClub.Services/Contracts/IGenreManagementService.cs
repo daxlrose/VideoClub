@@ -8,5 +8,6 @@ namespace VideoClub.Services.Contracts
         Task<Genre> GetGenreByIdAsync(int id);
         Task UpdateGenreAsync(Genre genre);
         Task DeleteGenreAsync(Genre genre);
+        Task<IEnumerable<Genre>> GetAllGenresAsync();
     }
 }

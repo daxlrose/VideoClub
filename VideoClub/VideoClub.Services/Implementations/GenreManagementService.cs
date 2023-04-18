@@ -1,4 +1,5 @@
-﻿using VideoClub.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using VideoClub.Data;
 using VideoClub.Data.Models;
 using VideoClub.Services.Contracts;
 
@@ -35,6 +36,11 @@ namespace VideoClub.Services.Implementations
         {
             _dbContext.Genres.Remove(genre);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Genre>> GetAllGenresAsync()
+        {
+            return await _dbContext.Genres.ToListAsync();
         }
     }
 }

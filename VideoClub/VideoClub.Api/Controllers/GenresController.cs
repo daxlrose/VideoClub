@@ -118,5 +118,19 @@ namespace VideoClub.Api.Controllers
 
             return Ok();
         }
+
+        /// <summary>
+        /// Retrieves all genres.
+        /// </summary>
+        /// <returns>A list of all genres.</returns>
+        /// <response code="200">A list of all genres.</response>
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<GenreDto>>> GetAll()
+        {
+            var genres = await _genreManagementService.GetAllGenresAsync();
+            var genreDtos = _mapper.Map<IEnumerable<GenreDto>>(genres);
+            return Ok(genreDtos);
+        }
     }
 }

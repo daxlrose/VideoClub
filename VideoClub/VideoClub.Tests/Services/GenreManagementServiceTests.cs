@@ -102,6 +102,28 @@ namespace VideoClub.Tests.Services
             Assert.Null(foundGenre);
         }
 
+        [Fact]
+        public async Task GetAllGenresAsync_ReturnsAllGenres()
+        {
+            // Arrange
+            var genre1 = new Genre { Name = "Action" };
+            var genre2 = new Genre { Name = "Comedy" };
+            var genre3 = new Genre { Name = "Drama" };
+
+            _dbContext.Genres.AddRange(genre1, genre2, genre3);
+            await _dbContext.SaveChangesAsync();
+
+            // Act
+            var allGenres = await _service.GetAllGenresAsync();
+
+            // Assert
+            Assert.NotNull(allGenres);
+            Assert.Equal(3, allGenres.Count());
+            Assert.Contains(allGenres, g => g.Name == "Action");
+            Assert.Contains(allGenres, g => g.Name == "Comedy");
+            Assert.Contains(allGenres, g => g.Name == "Drama");
+        }
+
         public void Dispose()
         {
             _dbContext.Database.EnsureDeleted();

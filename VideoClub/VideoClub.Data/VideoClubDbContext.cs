@@ -33,6 +33,12 @@ namespace VideoClub.Data
                 .HasOne(mg => mg.Genre)
                 .WithMany(g => g.MovieGenres)
                 .HasForeignKey(mg => mg.GenreId);
+
+            builder.Entity<Movie>()
+                .HasMany(m => m.MovieGenres)
+                .WithOne(mg => mg.Movie)
+                .HasForeignKey(mg => mg.MovieId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

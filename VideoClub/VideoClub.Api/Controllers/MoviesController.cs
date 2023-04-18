@@ -130,5 +130,30 @@ namespace VideoClub.Api.Controllers
 
             return Ok();
         }
+
+        /// <summary>
+        /// Deletes a movie by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the movie to delete.</param>
+        /// <returns>An IActionResult indicating the result of the operation.</returns>
+        /// <response code="204">The movie was successfully deleted.</response>
+        /// <response code="404">The movie with the specified ID was not found.</response>
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteMovie(int id)
+        {
+            var movie = await _movieManagementService.GetMovieByIdAsync(id);
+
+            if (movie == null)
+            {
+                return NotFound();
+            }
+
+            await _movieManagementService.DeleteMovieAsync(movie);
+
+            return NoContent();
+        }
     }
 }

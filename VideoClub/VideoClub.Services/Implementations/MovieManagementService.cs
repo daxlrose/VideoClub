@@ -21,6 +21,12 @@ namespace VideoClub.Services.Implementations
             return movie;
         }
 
+        public async Task DeleteMovieAsync(Movie movie)
+        {
+            _dbContext.Movies.Remove(movie);
+            await _dbContext.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<Movie>> GetAllMoviesAsync()
         {
             return await _dbContext.Movies.Include(m => m.MovieGenres).ThenInclude(mg => mg.Genre).ToListAsync();

@@ -15,6 +15,9 @@ namespace VideoClub.Common.Mapping
             CreateMap<CreateMovieDto, Movie>()
                 .ForMember(dest => dest.MovieGenres, opt => opt.MapFrom(src => src.GenreIds.Select(id => new MovieGenre { GenreId = id })));
 
+            CreateMap<UpdateMovieDto, Movie>()
+                .ForMember(dest => dest.MovieGenres, opt => opt.MapFrom(src => src.GenreIds.Select(id => new MovieGenre { GenreId = id })));
+
             CreateMap<Genre, GenreDto>().ReverseMap();
             CreateMap<Genre, CreateGenreDto>().ReverseMap();
             CreateMap<Genre, UpdateGenreDto>().ReverseMap();

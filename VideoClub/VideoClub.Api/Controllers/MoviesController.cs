@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VideoClub.Common.DTOs.Genres;
 using VideoClub.Common.DTOs.Movies;
 using VideoClub.Data.Models;
 using VideoClub.Services.Contracts;
@@ -58,7 +59,8 @@ namespace VideoClub.Api.Controllers
             movie.MovieGenres = movieGenres;
 
             var addedMovie = await _movieManagementService.AddMovieAsync(movie);
-            return CreatedAtAction(nameof(GetMovieById), new { id = addedMovie.Id }, addedMovie);
+            var createdMovieDto = _mapper.Map<MovieDto>(addedMovie);
+            return CreatedAtAction(nameof(GetMovieById), new { id = addedMovie.Id },createdMovieDto );
         }
 
         /// <summary>
@@ -97,6 +99,36 @@ namespace VideoClub.Api.Controllers
 
             var movieDtos = _mapper.Map<IEnumerable<MovieDto>>(movies);
             return Ok(movieDtos);
+        }
+
+        /// <summary>
+        /// Updates an existing movie.
+        /// </summary>
+        /// <param name="id">The ID of the movie to update.</param>
+        /// <param name="movieDto">The updated movie information.</param>
+        /// <returns>An IActionResult indicating the result of the operation.</returns>
+        /// <response code="200">The movie was successfully updated.</response>
+        /// <response code="400">Invalid input.</response>
+        /// <response code="404">The movie with the specified ID was not found.</response>
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateMovie(int id, [FromBody] UpdateMovieDto movieDto)
+        {
+            var movie = await _movieManagementService.GetMovieByIdAsync(id);
+
+            if (movie == null)
+            {
+                return NotFound();
+            }
+
+            movieDto.ReleaseDate = movieDto.ReleaseDate.ToUniversalTime();
+            _mapper.Map(movieDto, movie);
+            await _movieManagementService.UpdateMovieAsync(movie);
+
+            return Ok();
         }
     }
 }

@@ -33,5 +33,11 @@ namespace VideoClub.Services.Implementations
                 .ThenInclude(mg => mg.Genre)
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
+
+        public async Task UpdateMovieAsync(Movie movie)
+        {
+            _dbContext.Movies.Update(movie);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

@@ -7,5 +7,6 @@ namespace VideoClub.Services.Contracts
         Task<Movie> AddMovieAsync(Movie movie);
         Task<Movie> GetMovieByIdAsync(int id);
         Task<IEnumerable<Movie>> GetAllMoviesAsync();
+        Task UpdateMovieAsync(Movie movie);
     }
 }

@@ -9,5 +9,6 @@ namespace VideoClub.Services.Contracts
         Task<IEnumerable<Movie>> GetAllMoviesAsync();
         Task UpdateMovieAsync(Movie movie);
         Task DeleteMovieAsync(Movie movie);
+        Task<IEnumerable<Movie>> GetMoviesByGenreAsync(string genre);
     }
 }

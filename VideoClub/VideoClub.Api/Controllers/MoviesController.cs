@@ -155,5 +155,20 @@ namespace VideoClub.Api.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Get all movies by the provided genre name.
+        /// </summary>
+        /// <param name="genre">The genre name.</param>
+        /// <returns>A list of movies belonging to the specified genre.</returns>
+        /// <response code="200">Returns the list of movies.</response>
+        [HttpGet("by-genre/{genre}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<Movie>>> GetMoviesByGenreAsync(string genre)
+        {
+            var movies = await _movieManagementService.GetMoviesByGenreAsync(genre);
+            var moviesDtoCollection = _mapper.Map<IEnumerable<MovieDto>>(movies);
+            return Ok(moviesDtoCollection);
+        }
     }
 }

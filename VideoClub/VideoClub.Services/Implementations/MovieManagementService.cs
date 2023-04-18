@@ -45,5 +45,14 @@ namespace VideoClub.Services.Implementations
             _dbContext.Movies.Update(movie);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<Movie>> GetMoviesByGenreAsync(string genre)
+        {
+            return await _dbContext.Movies
+                .Include(m => m.MovieGenres)
+                .ThenInclude(mg => mg.Genre)
+                .Where(m => m.MovieGenres.Any(mg => mg.Genre.Name == genre))
+                .ToListAsync();
+        }
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using VideoClub.Data;
 using VideoClub.Data.Models;
 using VideoClub.Services.Contracts;
@@ -127,6 +122,25 @@ namespace VideoClub.Tests.Services
             Assert.Contains(allMovies, m => m.Title == "Test Movie3");
         }
 
+        [Fact]
+        public async Task GetMoviesByGenreAsync_ReturnsMoviesWithProvidedGenre()
+        {
+            // Arrange
+            var movies = GetSampleMovies();
+
+            _dbContext.Movies.AddRange(movies);
+            await _dbContext.SaveChangesAsync();
+
+            // Act
+            var moviesByGenre = await _service.GetMoviesByGenreAsync("Action");
+
+            // Assert
+            Assert.NotNull(moviesByGenre);
+            Assert.Equal(2, moviesByGenre.Count());
+            Assert.Contains(moviesByGenre, m => m.Title == "Test Movie");
+            Assert.Contains(moviesByGenre, m => m.Title == "Test Movie2");
+        }
+
         public void Dispose()
         {
             _dbContext.Database.EnsureDeleted();
@@ -135,7 +149,10 @@ namespace VideoClub.Tests.Services
 
         private List<Movie> GetSampleMovies()
         {
-            return new List<Movie>()
+            var genre1 = new Genre { Name = "Action" };
+            var genre2 = new Genre { Name = "Comedy" };
+
+            var movies = new List<Movie>()
             {
                 new Movie
                 {
@@ -146,7 +163,8 @@ namespace VideoClub.Tests.Services
                     DurationInMinutes = 60,
                     TotalStock = 10,
                     AvailableStock = 10,
-                    RentalPrice = 7
+                    RentalPrice = 7,
+                    MovieGenres =new List<MovieGenre> { new MovieGenre { Genre = genre1 } }
                 },
                 new Movie
                 {
@@ -157,7 +175,8 @@ namespace VideoClub.Tests.Services
                     DurationInMinutes = 60,
                     TotalStock = 10,
                     AvailableStock = 10,
-                    RentalPrice = 7
+                    RentalPrice = 7,
+                    MovieGenres =new List<MovieGenre> { new MovieGenre { Genre = genre1 } }
                 },
                 new Movie
                 {
@@ -168,9 +187,12 @@ namespace VideoClub.Tests.Services
                     DurationInMinutes = 60,
                     TotalStock = 10,
                     AvailableStock = 10,
-                    RentalPrice = 7
+                    RentalPrice = 7,
+                    MovieGenres =new List<MovieGenre> { new MovieGenre { Genre = genre2 } }
                 }
             };
+
+            return movies;
         }
     }
 }

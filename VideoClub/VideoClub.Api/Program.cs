@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+using System.Reflection;
 using VideoClub.Api.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +10,9 @@ builder.Services
     .AddInfrastructure(builder.Configuration)
     .AddAuthenticationAndAuthorization(builder.Configuration)
     .AddServices();
+
+builder.Configuration.AddEnvironmentVariables()
+                     .AddUserSecrets(Assembly.GetExecutingAssembly(), true);
 
 var app = builder.Build();
 

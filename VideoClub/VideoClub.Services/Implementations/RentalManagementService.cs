@@ -1,4 +1,5 @@
-﻿using VideoClub.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using VideoClub.Data;
 using VideoClub.Data.Models;
 using VideoClub.Services.Contracts;
 
@@ -23,6 +24,13 @@ namespace VideoClub.Services.Implementations
         public async Task<Rental> GetRentalByIdAsync(int id)
         {
             return await _dbContext.Rentals.FindAsync(id);
+        }
+
+        public async Task<IEnumerable<Rental>> GetOverdueRentalsAsync()
+        {
+            return await _dbContext.Rentals
+                .Where(r => r.DueDate < DateTime.Now && !r.Returned)
+                .ToListAsync();
         }
     }
 }

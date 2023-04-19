@@ -6,5 +6,6 @@ namespace VideoClub.Services.Contracts
     {
         Task<Rental> AddRentalAsync(Rental rental);
         Task<Rental> GetRentalByIdAsync(int id);
+        Task<IEnumerable<Rental>> GetOverdueRentalsAsync();
     }
 }

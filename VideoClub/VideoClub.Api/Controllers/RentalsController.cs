@@ -30,7 +30,6 @@ namespace VideoClub.Api.Controllers
         /// <returns>The created rental record.</returns>
         /// <response code="201">Returns the created rental record.</response>
         /// <response code="400">Invalid model.</response>
-        // POST: api/Rentals
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -54,7 +53,6 @@ namespace VideoClub.Api.Controllers
         /// <returns>The rental record if found, NotFound otherwise.</returns>
         /// <response code="200">Returns the rental record.</response>
         /// <response code="404">If the rental record is not found.</response>
-        // GET: api/Rentals/{id}
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -69,6 +67,26 @@ namespace VideoClub.Api.Controllers
             var rentalDto = _mapper.Map<RentalDto>(rental);
 
             return Ok(rentalDto);
+        }
+
+        /// <summary>
+        /// Retrieves all rental records where the due date has passed, and the movie has not been returned.
+        /// </summary>
+        /// <returns>A list of overdue rental records.</returns>
+        /// <response code="200">Returns the list of overdue rental records.</response>
+        /// <response code="404">No overdue rental records found.</response>
+        [HttpGet("Overdue")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<RentalDto>>> GetOverdueRentals()
+        {
+            var overdueRentals = await _rentalManagementService.GetOverdueRentalsAsync();
+            if (overdueRentals == null || !overdueRentals.Any())
+            {
+                return NotFound();
+            }
+            var overdueRentalsDto = overdueRentals.Select(rental => _mapper.Map<RentalDto>(rental));
+            return Ok(overdueRentalsDto);
         }
     }
 }

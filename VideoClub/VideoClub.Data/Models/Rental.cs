@@ -6,7 +6,8 @@
         public string UserId { get; set; }
         public int MovieId { get; set; }
         public DateTime RentalDate { get; set; }
-        public DateTime? ReturnDate { get; set; }
+        public DateTime? DueDate { get; set; }
+        public bool Returned { get; set; }
 
         public ApplicationUser User { get; set; }
         public Movie Movie { get; set; }

@@ -65,38 +65,70 @@ namespace VideoClub.Tests.Services
             Assert.Null(foundRental);
         }
 
+        [Fact]
+        public async Task GetOverdueRentalsAsync_ReturnsOverdueRentals()
+        {
+            // Arrange
+            var rentals = GetSampleRentals();
+
+            _dbContext.Rentals.AddRange(rentals);
+            await _dbContext.SaveChangesAsync();
+
+            // Act
+            var overdueRentals = await _service.GetOverdueRentalsAsync();
+
+            // Assert
+            Assert.NotNull(overdueRentals);
+            Assert.Equal(2, overdueRentals.Count());
+            Assert.Contains(overdueRentals, r => r.Id == 1);
+            Assert.Contains(overdueRentals, r => r.Id == 2);
+        }
+
         public void Dispose()
         {
             _dbContext.Database.EnsureDeleted();
             _dbContext.Dispose();
         }
 
+
+
         private List<Rental> GetSampleRentals()
         {
+            var user = new ApplicationUser { Id = new Guid().ToString() };
+
             var rentals = new List<Rental>()
-            {
-                new Rental
-                {
-                    MovieId = 1,
-                    UserId = new Guid().ToString(),
-                    RentalDate = DateTime.Now,
-                    ReturnDate = DateTime.Now.AddDays(7)
-                },
-                new Rental
-                {
-                    MovieId = 2,
-                    UserId = new Guid().ToString(),
-                    RentalDate = DateTime.Now,
-                    ReturnDate = DateTime.Now.AddDays(7)
-                },
-                new Rental
-                {
-                    MovieId = 3,
-                    UserId = new Guid().ToString(),
-                    RentalDate = DateTime.Now,
-                    ReturnDate = DateTime.Now.AddDays(7)
-                }
-            };
+    {
+        new Rental
+        {
+            Id = 1,
+            MovieId = 1,
+            UserId = user.Id,
+            User = user,
+            RentalDate = DateTime.Now.AddDays(-10),
+            DueDate = DateTime.Now.AddDays(-5),
+            Returned = false
+        },
+        new Rental
+        {
+            Id = 2,
+            MovieId = 1,
+            UserId = user.Id,
+            User = user,
+            RentalDate = DateTime.Now.AddDays(-7),
+            DueDate = DateTime.Now.AddDays(-3),
+            Returned = false
+        },
+        new Rental
+        {
+            Id = 3,
+            MovieId = 3,
+            UserId = user.Id,
+            User = user,
+            RentalDate = DateTime.Now.AddDays(-3),
+            DueDate = DateTime.Now.AddDays(3),
+            Returned = false
+        }
+    };
 
             return rentals;
         }

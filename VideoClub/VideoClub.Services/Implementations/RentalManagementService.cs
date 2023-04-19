@@ -16,6 +16,15 @@ namespace VideoClub.Services.Implementations
 
         public async Task<Rental> AddRentalAsync(Rental rental)
         {
+            var movie = await _dbContext.Movies.FindAsync(rental.MovieId);
+
+            if (movie.AvailableStock <= 0)
+            {
+                throw new InvalidOperationException("No available stock for the selected movie.");
+            }
+            movie.AvailableStock--;
+
+
             _dbContext.Rentals.Add(rental);
             await _dbContext.SaveChangesAsync();
             return rental;

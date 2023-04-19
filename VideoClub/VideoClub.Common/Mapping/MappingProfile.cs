@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using VideoClub.Common.DTOs.Genres;
 using VideoClub.Common.DTOs.Movies;
+using VideoClub.Common.DTOs.Rentals;
 using VideoClub.Data.Models;
 
 namespace VideoClub.Common.Mapping
@@ -24,6 +25,9 @@ namespace VideoClub.Common.Mapping
 
             CreateMap<Movie, MovieDto>()
     .ForMember(dest => dest.Genres, opt => opt.MapFrom(src => src.MovieGenres.Select(mg => mg.Genre.Name).ToList()));
+
+            CreateMap<Rental, CreateRentalDto>().ReverseMap();
+            CreateMap<Rental, RentalDto>().ReverseMap();
         }
     }
 }

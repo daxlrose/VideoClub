@@ -120,6 +120,7 @@ namespace VideoClub.Api.Configuration
             services.AddScoped<IUserManagementService, UserManagementService>();
             services.AddScoped<IMovieManagementService, MovieManagementService>();
             services.AddScoped<IGenreManagementService, GenreManagementService>();
+            services.AddScoped<IRentalManagementService, RentalManagementService>();
 
             return services;
         }

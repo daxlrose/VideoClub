@@ -170,5 +170,20 @@ namespace VideoClub.Api.Controllers
             var moviesDtoCollection = _mapper.Map<IEnumerable<MovieDto>>(movies);
             return Ok(moviesDtoCollection);
         }
+
+        /// <summary>
+        /// Searches movies by title or partial title.
+        /// </summary>
+        /// <param name="query">The search query.</param>
+        /// <returns>A list of movies matching the search query.</returns>
+        /// <response code="200">Returns the list of matching movies.</response>
+        [HttpGet("search")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<MovieDto>>> SearchMovies(string query)
+        {
+            var movies = await _movieManagementService.SearchMoviesAsync(query);
+            var movieDtos = _mapper.Map<IEnumerable<MovieDto>>(movies);
+            return Ok(movieDtos);
+        }
     }
 }

@@ -141,6 +141,26 @@ namespace VideoClub.Tests.Services
             Assert.Contains(moviesByGenre, m => m.Title == "Test Movie2");
         }
 
+        [Theory]
+        [InlineData("test movie2", 1)]
+        [InlineData("movie", 3)]
+        [InlineData("nonexistent", 0)]
+        public async Task SearchMoviesAsync_ReturnsMatchingMovies(string query, int expectedCount)
+        {
+            // Arrange
+            var movies = GetSampleMovies();
+
+            _dbContext.Movies.AddRange(movies);
+            await _dbContext.SaveChangesAsync();
+
+            // Act
+            var searchResults = await _service.SearchMoviesAsync(query);
+
+            // Assert
+            Assert.NotNull(searchResults);
+            Assert.Equal(expectedCount, searchResults.Count());
+        }
+
         public void Dispose()
         {
             _dbContext.Database.EnsureDeleted();

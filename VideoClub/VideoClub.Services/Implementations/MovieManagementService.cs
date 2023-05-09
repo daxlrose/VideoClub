@@ -54,5 +54,19 @@ namespace VideoClub.Services.Implementations
                 .Where(m => m.MovieGenres.Any(mg => mg.Genre.Name == genre))
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Movie>> SearchMoviesAsync(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return new List<Movie>();
+            }
+
+            var searchQuery = query.Trim().ToLowerInvariant();
+
+            return await _dbContext.Movies
+            .Where(m => EF.Functions.Like(m.Title.ToLower(), $"%{searchQuery}%"))
+            .ToListAsync();
+        }
     }
 }

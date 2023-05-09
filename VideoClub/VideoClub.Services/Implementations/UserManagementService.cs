@@ -77,6 +77,17 @@ namespace VideoClub.Services.Implementations
             return await _userManager.RemoveFromRoleAsync(user, "Admin");
         }
 
+        public async Task<IdentityResult> DeleteUserAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "User not found." });
+            }
+
+            return await _userManager.DeleteAsync(user);
+        }
+
         private async Task<string> GenerateJwtAsync(ApplicationUser user)
         {
             var claims = new List<Claim>

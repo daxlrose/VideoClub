@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using VideoClub.Services.Models.UserModels;
 using VideoClub.Services.Contracts;
+using VideoClub.Services.Implementations;
 
 namespace VideoClub.Api.Controllers
 {
@@ -10,11 +11,11 @@ namespace VideoClub.Api.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
         private readonly IUserManagementService _userManagementService;
 
-        public UserController(IUserManagementService userManagementService)
+        public UsersController(IUserManagementService userManagementService)
         {
             _userManagementService = userManagementService;
         }
@@ -124,6 +125,38 @@ namespace VideoClub.Api.Controllers
             if (result.Succeeded)
             {
                 return Ok("Admin role revoked successfully.");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        /// <summary>
+        /// Deletes a user with the given ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user to delete.</param>
+        /// <returns>An IActionResult representing the result of the deletion process.</returns>
+        /// <response code="200">User deleted successfully.</response>
+        /// <response code="400">Invalid input or user not found.</response>
+        /// <response code="403">Unauthorized access. Only Admin users can perform this action.</response>
+        [HttpDelete("{userId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUser(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                return BadRequest("User ID is required.");
+            }
+
+            var result = await _userManagementService.DeleteUserAsync(userId);
+
+            if (result.Succeeded)
+            {
+                return Ok("User deleted successfully.");
             }
 
             foreach (var error in result.Errors)

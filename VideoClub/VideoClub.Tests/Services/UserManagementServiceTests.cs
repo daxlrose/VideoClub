@@ -228,6 +228,39 @@ namespace VideoClub.Tests.Services
             Assert.Contains(result.Errors, e => e.Description == "User is not in this role.");
         }
 
+        [Fact]
+        public async Task DeleteUserAsync_ReturnsSuccessfulResult_WhenUserIsDeletedSuccessfully()
+        {
+            // Arrange
+            var userId = "1";
+            var user = new ApplicationUser { Id = userId };
+
+            _mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _mockUserManager.Setup(x => x.DeleteAsync(user)).ReturnsAsync(IdentityResult.Success);
+
+            // Act
+            var result = await _service.DeleteUserAsync(userId);
+
+            // Assert
+            Assert.True(result.Succeeded);
+        }
+
+        [Fact]
+        public async Task DeleteUserAsync_ReturnsFailedResult_WhenUserDoesNotExist()
+        {
+            // Arrange
+            var userId = "1";
+
+            _mockUserManager.Setup(x => x.FindByIdAsync(It.IsAny<string>())).ReturnsAsync((ApplicationUser)null);
+
+            // Act
+            var result = await _service.DeleteUserAsync(userId);
+
+            // Assert
+            Assert.False(result.Succeeded);
+            Assert.Contains(result.Errors, e => e.Description == "User not found.");
+        }
+
         public void Dispose()
         {
             _mockUserManager.Reset();

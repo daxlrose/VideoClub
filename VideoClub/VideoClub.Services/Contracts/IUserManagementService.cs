@@ -9,5 +9,6 @@ namespace VideoClub.Services.Contracts
         Task<string> LoginUserAsync(LoginModel model);
         Task<IdentityResult> GrantAdminRoleAsync(string userId);
         Task<IdentityResult> RemoveAdminRoleAsync(string userId);
+        Task<IdentityResult> DeleteUserAsync(string userId);
     }
 }
